@@ -1,7 +1,10 @@
 package com.tasktracker;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Map;
 import java.util.HashMap;
@@ -19,6 +22,22 @@ public class TaskCRUD {
         statuses.put("todo", Status.todo);
         statuses.put("inProgress", Status.inProgress);
         statuses.put("done", Status.done);
+
+        tasks = new JSONArray();
+        try {
+            File tasksFile = new File("tasks.json");
+            if (tasksFile.createNewFile()) {
+                FileWriter fw = new FileWriter("tasks.json");
+                fw.write(tasks.toString());
+                fw.close();
+            }
+            String content = new String(Files.readAllBytes(Paths.get("tasks.json")));
+            tasks = new JSONArray(content);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public int addTask(String description) throws JSONException {

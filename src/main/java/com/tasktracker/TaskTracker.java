@@ -1,15 +1,5 @@
 package com.tasktracker;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import org.json.JSONArray;
 import org.json.JSONException;
 
 public class TaskTracker {
@@ -49,29 +39,9 @@ public class TaskTracker {
             return;
         }
 
-        String content = "";
-        JSONArray tasks = new JSONArray();
-        try {
-            File tasksFile = new File("tasks.json");
-            if (tasksFile.createNewFile()) {
-                FileWriter fw = new FileWriter("tasks.json");
-                fw.write(new JSONArray().toString());
-                fw.close();
-            }
-            content = new String(Files.readAllBytes(Paths.get("tasks.json")));
-            tasks = new JSONArray(content);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
         TaskCRUD crud = new TaskCRUD();
-        crud.setTasks(tasks);
 
         String option = args[0];
-
         switch (option) {
             case "add":
                 if (args.length >= 2) {
