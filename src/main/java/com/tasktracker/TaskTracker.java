@@ -1,6 +1,8 @@
 package com.tasktracker;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -62,8 +64,26 @@ public class TaskTracker {
             e.printStackTrace();
         }
 
+        int nextId = 1;
+        File idFile;
+        try {
+            idFile = new File("trackId.txt");
+            if (idFile.createNewFile()) {
+                FileWriter fw = new FileWriter("trackId.txt");
+                fw.write("1");
+                fw.close();
+
+            }
+            BufferedReader br = new BufferedReader(new FileReader("trackId.txt"));
+            nextId = Integer.parseInt(br.readLine());
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         TaskCRUD crud = new TaskCRUD();
         crud.setTasks(tasks);
+        crud.setId(nextId);
 
         String option = args[0];
 
@@ -88,8 +108,12 @@ public class TaskTracker {
                     int taskId = Integer.parseInt(args[1]);
                     String newDescription = args[2];
                     try {
-                        crud.updateTask(taskId, newDescription);
-                        System.out.println("Task (ID " + taskId + ") updated successfully");
+                        if (crud.updateTask(taskId, newDescription)) {
+                            System.out.println("Task (ID " + taskId + ") updated successfully");
+                        } else {
+                            System.err.println("Task (ID " + taskId + ") not found");
+                        }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -100,7 +124,11 @@ public class TaskTracker {
             case "delete":
                 if (args.length >= 2) {
                     int taskId = Integer.parseInt(args[1]);
-                    crud.deleteTask(taskId);
+                    if (crud.deleteTask(taskId)) {
+                        System.out.println("Task (ID " + taskId + ") deleted successfully");
+                    } else {
+                        System.err.println("Task (ID " + taskId + ") not found");
+                    }
                 } else {
                     System.out.println(help);
                 }
@@ -108,13 +136,21 @@ public class TaskTracker {
             case "markInProgress":
                 if (args.length >= 2) {
                     int taskId = Integer.parseInt(args[1]);
-                    crud.markInProgress(taskId);
+                    if (crud.markInProgress(taskId)) {
+                        System.out.println("Task (ID " + taskId + ") marked as in progress");
+                    } else {
+                        System.err.println("Task (ID " + taskId + ") not found");
+                    }
                 }
                 break;
             case "markDone":
                 if (args.length >= 2) {
                     int taskId = Integer.parseInt(args[1]);
-                    crud.markDone(taskId);
+                    if (crud.markDone(taskId)) {
+                        System.out.println("Task (ID " + taskId + ") marked as done");
+                    } else {
+                        System.err.println("Task (ID " + taskId + ") not found");
+                    }
                 }
                 break;
             case "list":
@@ -132,6 +168,5 @@ public class TaskTracker {
             default:
                 break;
         }
-        crud.saveTasks();
     }
 }

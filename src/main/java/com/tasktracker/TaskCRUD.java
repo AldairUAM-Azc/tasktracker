@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 public class TaskCRUD {
     private JSONArray tasks;
-    private int id = 1;
+    private int id;
 
     public TaskCRUD() {
     }
@@ -24,57 +24,66 @@ public class TaskCRUD {
         task.setUpdatedAt(Instant.now());
 
         tasks.put(task.toJSON());
-        listTasks();
-        return id++;
+        saveTasks();
+        int currentId = id;
+        id += 1;
+        saveNextId();
+        return currentId;
     }
 
-    public void updateTask(int taskId, String update) throws JSONException {
+    public boolean updateTask(int taskId, String update) throws JSONException {
         Integer taskIndex = findTaskIndex(taskId);
-        if (taskIndex != null) {
-            JSONObject task = (JSONObject) tasks.get(taskIndex);
-            JSONObject props = (JSONObject) task.get(String.valueOf(taskId));
-            props.put("description", update);
-            props.put("updatedAt", Instant.now());
-            listTasks();
-        } else {
-            System.err.println("Task (ID " + taskId + ") not found");
+        if (taskIndex == null) {
+            return false;
         }
+
+        JSONObject task = (JSONObject) tasks.get(taskIndex);
+        JSONObject props = (JSONObject) task.get(String.valueOf(taskId));
+        props.put("description", update);
+        props.put("updatedAt", Instant.now());
+        saveTasks();
+        return true;
     }
 
-    public void deleteTask(int taskId) {
+    public boolean deleteTask(int taskId) {
         Integer taskIndex = findTaskIndex(taskId);
-        if (taskIndex != null) {
-            tasks.remove(taskIndex);
-        } else {
-            System.err.println("Task (ID " + taskId + ") not found");
+        if (taskIndex == null) {
+            return false;
         }
-        listTasks();
+
+        tasks.remove(taskIndex);
+        saveTasks();
+        return true;
     }
 
-    public void markInProgress(int taskId) {
-        Integer taskIndex = findTaskIndex(taskId);
-        if (taskIndex != null) {
-            JSONObject task = (JSONObject) tasks.get(taskIndex);
-            JSONObject props = (JSONObject) task.get(String.valueOf(taskId));
-            props.put("state", State.inProgress);
-            props.put("updatedAt", Instant.now());
-        } else {
-            System.err.println("Task (ID " + taskId + ") not found");
-        }
-        listTasks();
     }
 
-    public void markDone(int taskId) {
+    public boolean markInProgress(int taskId) {
         Integer taskIndex = findTaskIndex(taskId);
-        if (taskIndex != null) {
-            JSONObject task = (JSONObject) tasks.get(taskIndex);
-            JSONObject props = (JSONObject) task.get(String.valueOf(taskId));
-            props.put("state", State.done);
-            props.put("updatedAt", Instant.now());
-        } else {
-            System.err.println("Task (ID " + taskId + ") not found");
+        if (taskIndex == null) {
+            return false;
         }
-        listTasks();
+
+        JSONObject task = (JSONObject) tasks.get(taskIndex);
+        JSONObject props = (JSONObject) task.get(String.valueOf(taskId));
+        props.put("state", State.inProgress);
+        props.put("updatedAt", Instant.now());
+        saveTasks();
+        return true;
+    }
+
+    public boolean markDone(int taskId) {
+        Integer taskIndex = findTaskIndex(taskId);
+        if (taskIndex == null) {
+            return false;
+        }
+
+        JSONObject task = (JSONObject) tasks.get(taskIndex);
+        JSONObject props = (JSONObject) task.get(String.valueOf(taskId));
+        props.put("state", State.done);
+        props.put("updatedAt", Instant.now());
+        saveTasks();
+        return true;
     }
 
     public void listTasks() {
@@ -102,10 +111,20 @@ public class TaskCRUD {
         }
     }
 
-    public void saveTasks() {
+    private void saveTasks() {
         try {
             FileWriter fw = new FileWriter("tasks.json");
             fw.write(tasks.toString());
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveNextId() {
+        try {
+            FileWriter fw = new FileWriter("trackId.txt");
+            fw.write(String.valueOf(id));
             fw.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -129,6 +148,14 @@ public class TaskCRUD {
 
     public void setTasks(JSONArray tasks) {
         this.tasks = tasks;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
 }
