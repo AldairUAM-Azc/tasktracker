@@ -13,28 +13,35 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 public class TaskTracker {
-
-    static String help = """
+    static String helpAdd = """
             - Adding a new task
-            task-cli add "Buy groceries"
+            ./taskTracker add "Buy groceries"
             - Output: Task added successfully (ID: 1)
 
+            """;
+    static String helpUpdateOrDelete = """
             - Updating and deleting tasks
-            task-cli update 1 "Buy groceries and cook dinner"
-            task-cli delete 1
+            ./taskTracker update 1 "Buy groceries and cook dinner"
+            ./taskTracker delete 1
 
+            """;
+    static String helpMark = """
             - Marking a task as in progress or done
-            task-cli markInProgress 1
-            task-cli markDone 1
+            ./taskTracker markInProgress 1
+            ./taskTracker markDone 1
 
+            """;
+    static String helpList = """
             - Listing all tasks
-            task-cli list
+            ./taskTracker list
 
             - Listing tasks by status
-            task-cli list done
-            task-cli list todo
-            task-cli list inProgress
-                        """;
+            ./taskTracker list done
+            ./taskTracker list todo
+            ./taskTracker list inProgress
+
+            """;
+    static String help = helpAdd + helpUpdateOrDelete + helpMark + helpList;
 
     public static void main(String[] args) {
         if (args.length <= 0) {
@@ -99,7 +106,7 @@ public class TaskTracker {
                         e.printStackTrace();
                     }
                 } else {
-                    System.out.println(help);
+                    System.out.println(helpAdd);
                 }
                 break;
 
@@ -118,7 +125,7 @@ public class TaskTracker {
                         e.printStackTrace();
                     }
                 } else {
-                    System.out.println(help);
+                    System.out.println(helpUpdateOrDelete);
                 }
                 break;
             case "delete":
@@ -130,7 +137,7 @@ public class TaskTracker {
                         System.err.println("Task (ID " + taskId + ") not found");
                     }
                 } else {
-                    System.out.println(help);
+                    System.out.println(helpUpdateOrDelete);
                 }
                 break;
             case "markInProgress":
@@ -141,6 +148,8 @@ public class TaskTracker {
                     } else {
                         System.err.println("Task (ID " + taskId + ") not found");
                     }
+                } else {
+                    System.out.println(helpMark);
                 }
                 break;
             case "markDone":
@@ -151,6 +160,8 @@ public class TaskTracker {
                     } else {
                         System.err.println("Task (ID " + taskId + ") not found");
                     }
+                } else {
+                    System.out.println(helpMark);
                 }
                 break;
             case "list":
@@ -160,12 +171,14 @@ public class TaskTracker {
                         crud.listTasks(states.get(state));
                     } else {
                         System.out.println("Invalid state");
+                        System.out.println(helpList);
                     }
                 } else {
                     crud.listTasks();
                 }
                 break;
             default:
+                System.out.println(help);
                 break;
         }
     }
