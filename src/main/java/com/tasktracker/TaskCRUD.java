@@ -56,8 +56,6 @@ public class TaskCRUD {
         return true;
     }
 
-    }
-
     public boolean markInProgress(int taskId) {
         Integer taskIndex = findTaskIndex(taskId);
         if (taskIndex == null) {
@@ -93,7 +91,7 @@ public class TaskCRUD {
         }
         for (int i = 0; i < tasks.length(); i++) {
             JSONObject task = tasks.getJSONObject(i);
-            System.out.println(task.toString());
+            printTask(task);
         }
     }
 
@@ -105,8 +103,8 @@ public class TaskCRUD {
         for (int i = 0; i < tasks.length(); i++) {
             JSONObject task = tasks.getJSONObject(i);
             JSONObject props = (JSONObject) task.get(task.keys().next()); // one single key
-            if (props.get("state") == state) {
-                System.out.println(task.toString());
+            if (props.get("state").equals(state.toString())) {
+                printTask(task);
             }
         }
     }
@@ -140,6 +138,16 @@ public class TaskCRUD {
             }
         }
         return null;
+    }
+
+    private void printTask(JSONObject task) {
+        StringBuilder sb = new StringBuilder();
+        String id = task.keys().next();
+        JSONObject props = (JSONObject) task.get(task.keys().next()); // one single key
+        sb.append("Task (ID ").append(id).append(")\n");
+        sb.append("  - Description: ").append(props.get("description")).append("\n");
+        sb.append("  - State: ").append(props.get("state").toString()).append("\n");
+        System.out.println(sb.toString());
     }
 
     public JSONArray getTasks() {
