@@ -1,5 +1,5 @@
 package com.tasktracker;
 
-public enum State {
+public enum Status {
     todo, inProgress, done
 }

@@ -3,6 +3,8 @@ package com.tasktracker;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,25 +12,27 @@ import org.json.JSONObject;
 
 public class TaskCRUD {
     private JSONArray tasks;
-    private int id;
+    private Map<String, Status> statuses;
 
     public TaskCRUD() {
+        statuses = new HashMap<String, Status>();
+        statuses.put("todo", Status.todo);
+        statuses.put("inProgress", Status.inProgress);
+        statuses.put("done", Status.done);
     }
 
     public int addTask(String description) throws JSONException {
         Task task = new Task();
+        int id = getNextTaskId();
         task.setId(id);
         task.setDescription(description);
-        task.setState(State.todo);
+        task.setStatus(Status.todo);
         task.setCreatedAt(Instant.now());
         task.setUpdatedAt(Instant.now());
 
         tasks.put(task.toJSON());
         saveTasks();
-        int currentId = id;
-        id += 1;
-        saveNextId();
-        return currentId;
+        return id;
     }
 
     public boolean updateTask(int taskId, String update) throws JSONException {
@@ -59,7 +63,7 @@ public class TaskCRUD {
             return false;
         }
         JSONObject task = (JSONObject) tasks.get(taskIndex);
-        task.put("state", State.inProgress);
+        task.put("status", Status.inProgress);
         task.put("updatedAt", Instant.now());
         saveTasks();
         return true;
@@ -71,7 +75,7 @@ public class TaskCRUD {
             return false;
         }
         JSONObject task = (JSONObject) tasks.get(taskIndex);
-        task.put("state", State.done);
+        task.put("status", Status.done);
         task.put("updatedAt", Instant.now());
         saveTasks();
         return true;
@@ -88,17 +92,25 @@ public class TaskCRUD {
         }
     }
 
-    public void listTasks(State state) {
-        if (tasks.isEmpty()) {
-            System.out.println("No tasks with state " + state.toString() + " yet");
-            return;
+    public boolean listTasks(String stateInput) {
+        if (!statuses.containsKey(stateInput)) {
+            return false;
         }
+
+        Status status = statuses.get(stateInput);
+
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks with status " + status.name() + " yet");
+            return true;
+        }
+
         for (int i = 0; i < tasks.length(); i++) {
             JSONObject task = tasks.getJSONObject(i);
-            if (task.get("state").equals(state.toString())) {
+            if (task.get("status").equals(stateInput.toString())) {
                 printTask(task);
             }
         }
+        return true;
     }
 
     private void saveTasks() {
@@ -111,15 +123,18 @@ public class TaskCRUD {
         }
     }
 
-    private void saveNextId() {
-        try {
-            FileWriter fw = new FileWriter("trackId.txt");
-            fw.write(String.valueOf(id));
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+    private int getNextTaskId() {
+        if (tasks == null || tasks.isEmpty()) {
+            return 0;
         }
-
+        try {
+            JSONObject lastTask = (JSONObject) tasks.get(tasks.length() - 1);
+            int id = Integer.parseInt(lastTask.get("id").toString()) + 1;
+            return id;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     private Integer findTaskIndex(int id) {
@@ -136,7 +151,7 @@ public class TaskCRUD {
         StringBuilder sb = new StringBuilder();
         sb.append("Task (ID ").append(task.get("id")).append(")\n");
         sb.append("  - Description: ").append(task.get("description")).append("\n");
-        sb.append("  - State: ").append(task.get("state").toString()).append("\n");
+        sb.append("  - State: ").append(task.get("status").toString()).append("\n");
         System.out.println(sb.toString());
     }
 
@@ -146,14 +161,6 @@ public class TaskCRUD {
 
     public void setTasks(JSONArray tasks) {
         this.tasks = tasks;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
 }

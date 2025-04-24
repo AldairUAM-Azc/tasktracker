@@ -49,11 +49,6 @@ public class TaskTracker {
             return;
         }
 
-        Map<String, State> states = new HashMap<String, State>();
-        states.put("todo", State.todo);
-        states.put("inProgress", State.inProgress);
-        states.put("done", State.done);
-
         String content = "";
         JSONArray tasks = new JSONArray();
         try {
@@ -71,26 +66,9 @@ public class TaskTracker {
             e.printStackTrace();
         }
 
-        int nextId = 1;
-        File idFile;
-        try {
-            idFile = new File("trackId.txt");
-            if (idFile.createNewFile()) {
-                FileWriter fw = new FileWriter("trackId.txt");
-                fw.write("1");
-                fw.close();
-
-            }
-            BufferedReader br = new BufferedReader(new FileReader("trackId.txt"));
-            nextId = Integer.parseInt(br.readLine());
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         TaskCRUD crud = new TaskCRUD();
         crud.setTasks(tasks);
-        crud.setId(nextId);
 
         String option = args[0];
 
@@ -166,11 +144,9 @@ public class TaskTracker {
                 break;
             case "list":
                 if (args.length >= 2) {
-                    String state = args[1];
-                    if (states.containsKey(state)) {
-                        crud.listTasks(states.get(state));
-                    } else {
-                        System.out.println("Invalid state");
+                    String status = args[1];
+                    if (!crud.listTasks(status)) {
+                        System.err.println("Invalid state " + status);
                         System.out.println(helpList);
                     }
                 } else {
