@@ -1,8 +1,13 @@
 package com.tasktracker;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-
+import org.json.JSONArray;
 import org.json.JSONException;
 
 public class TaskTracker {
@@ -30,7 +35,6 @@ public class TaskTracker {
                         """;
 
     public static void main(String[] args) {
-        System.out.println("args length " + args.length);
         if (args.length <= 0) {
             System.out.println(help);
             return;
@@ -41,10 +45,28 @@ public class TaskTracker {
         states.put("inProgress", State.inProgress);
         states.put("done", State.done);
 
+        String content = "";
+        JSONArray tasks = new JSONArray();
+        try {
+            File tasksFile = new File("tasks.json");
+            if (tasksFile.createNewFile()) {
+                FileWriter fw = new FileWriter("tasks.json");
+                fw.write(new JSONArray().toString());
+                fw.close();
+            }
+            content = new String(Files.readAllBytes(Paths.get("tasks.json")));
+            tasks = new JSONArray(content);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         TaskCRUD crud = new TaskCRUD();
+        crud.setTasks(tasks);
 
         String option = args[0];
-        System.out.println("Option: " + option);
+
         switch (option) {
             case "add":
                 if (args.length >= 2) {
@@ -110,5 +132,6 @@ public class TaskTracker {
             default:
                 break;
         }
+        crud.saveTasks();
     }
 }

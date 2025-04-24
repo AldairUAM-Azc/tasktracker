@@ -1,5 +1,7 @@
 package com.tasktracker;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Instant;
 
 import org.json.JSONArray;
@@ -11,19 +13,6 @@ public class TaskCRUD {
     private int id = 1;
 
     public TaskCRUD() {
-        tasks = new JSONArray();
-        for (; id < 5; id++) {
-            JSONObject taskInfo = new JSONObject();
-            taskInfo.put("description", "TEST " + id);
-            taskInfo.put("state", State.inProgress);
-            taskInfo.put("createdAt", Instant.now());
-            taskInfo.put("updatedAt", Instant.now());
-
-            JSONObject taskId = new JSONObject();
-            taskId.put(String.valueOf(id++), taskInfo);
-
-            tasks.put(taskId);
-        }
     }
 
     public int addTask(String description) throws JSONException {
@@ -89,6 +78,10 @@ public class TaskCRUD {
     }
 
     public void listTasks() {
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks yet");
+            return;
+        }
         for (int i = 0; i < tasks.length(); i++) {
             JSONObject task = tasks.getJSONObject(i);
             System.out.println(task.toString());
@@ -96,6 +89,10 @@ public class TaskCRUD {
     }
 
     public void listTasks(State state) {
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks with state " + state.toString() + " yet");
+            return;
+        }
         for (int i = 0; i < tasks.length(); i++) {
             JSONObject task = tasks.getJSONObject(i);
             JSONObject props = (JSONObject) task.get(task.keys().next()); // one single key
@@ -103,6 +100,17 @@ public class TaskCRUD {
                 System.out.println(task.toString());
             }
         }
+    }
+
+    public void saveTasks() {
+        try {
+            FileWriter fw = new FileWriter("tasks.json");
+            fw.write(tasks.toString());
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private Integer findTaskIndex(int id) {
@@ -113,6 +121,14 @@ public class TaskCRUD {
             }
         }
         return null;
+    }
+
+    public JSONArray getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(JSONArray tasks) {
+        this.tasks = tasks;
     }
 
 }
