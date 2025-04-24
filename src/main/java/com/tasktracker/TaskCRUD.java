@@ -36,11 +36,9 @@ public class TaskCRUD {
         if (taskIndex == null) {
             return false;
         }
-
         JSONObject task = (JSONObject) tasks.get(taskIndex);
-        JSONObject props = (JSONObject) task.get(String.valueOf(taskId));
-        props.put("description", update);
-        props.put("updatedAt", Instant.now());
+        task.put("description", update);
+        task.put("updatedAt", Instant.now());
         saveTasks();
         return true;
     }
@@ -50,7 +48,6 @@ public class TaskCRUD {
         if (taskIndex == null) {
             return false;
         }
-
         tasks.remove(taskIndex);
         saveTasks();
         return true;
@@ -61,11 +58,9 @@ public class TaskCRUD {
         if (taskIndex == null) {
             return false;
         }
-
         JSONObject task = (JSONObject) tasks.get(taskIndex);
-        JSONObject props = (JSONObject) task.get(String.valueOf(taskId));
-        props.put("state", State.inProgress);
-        props.put("updatedAt", Instant.now());
+        task.put("state", State.inProgress);
+        task.put("updatedAt", Instant.now());
         saveTasks();
         return true;
     }
@@ -75,11 +70,9 @@ public class TaskCRUD {
         if (taskIndex == null) {
             return false;
         }
-
         JSONObject task = (JSONObject) tasks.get(taskIndex);
-        JSONObject props = (JSONObject) task.get(String.valueOf(taskId));
-        props.put("state", State.done);
-        props.put("updatedAt", Instant.now());
+        task.put("state", State.done);
+        task.put("updatedAt", Instant.now());
         saveTasks();
         return true;
     }
@@ -102,8 +95,7 @@ public class TaskCRUD {
         }
         for (int i = 0; i < tasks.length(); i++) {
             JSONObject task = tasks.getJSONObject(i);
-            JSONObject props = (JSONObject) task.get(task.keys().next()); // one single key
-            if (props.get("state").equals(state.toString())) {
+            if (task.get("state").equals(state.toString())) {
                 printTask(task);
             }
         }
@@ -133,7 +125,7 @@ public class TaskCRUD {
     private Integer findTaskIndex(int id) {
         for (int i = 0; i < tasks.length(); i++) {
             JSONObject task = tasks.getJSONObject(i);
-            if (task.has(String.valueOf(id))) {
+            if (task.get("id").toString().equals(String.valueOf(id))) {
                 return i;
             }
         }
@@ -142,11 +134,9 @@ public class TaskCRUD {
 
     private void printTask(JSONObject task) {
         StringBuilder sb = new StringBuilder();
-        String id = task.keys().next();
-        JSONObject props = (JSONObject) task.get(task.keys().next()); // one single key
-        sb.append("Task (ID ").append(id).append(")\n");
-        sb.append("  - Description: ").append(props.get("description")).append("\n");
-        sb.append("  - State: ").append(props.get("state").toString()).append("\n");
+        sb.append("Task (ID ").append(task.get("id")).append(")\n");
+        sb.append("  - Description: ").append(task.get("description")).append("\n");
+        sb.append("  - State: ").append(task.get("state").toString()).append("\n");
         System.out.println(sb.toString());
     }
 

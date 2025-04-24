@@ -23,15 +23,13 @@ public class Task {
     }
 
     public JSONObject toJSON(){
-        JSONObject taskInfo = new JSONObject();
-        taskInfo.put("description", description);
-        taskInfo.put("state", State.todo);
-        taskInfo.put("createdAt", Instant.now());
-        taskInfo.put("updatedAt", Instant.now());
-
-        JSONObject json = new JSONObject();
-        json.put(String.valueOf(id), taskInfo);
-        return json;
+        JSONObject task = new JSONObject();
+        task.put("id", id);
+        task.put("description", description);
+        task.put("state", State.todo);
+        task.put("createdAt", Instant.now());
+        task.put("updatedAt", Instant.now());
+        return task;
     }
 
     @Override
